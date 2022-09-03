@@ -52,5 +52,7 @@ public class CategoryController {
 //        categoryService.removeById(ids);
         categoryService.remove(ids);
         return R.success("删除成功");
+
+        //eeeeee
     }
 }
