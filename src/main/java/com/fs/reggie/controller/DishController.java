@@ -6,12 +6,18 @@ import com.fs.reggie.common.R;
 
 
 import com.fs.reggie.dto.DishDto;
+import com.fs.reggie.entity.Category;
 import com.fs.reggie.entity.Dish;
+import com.fs.reggie.service.CategoryService;
 import com.fs.reggie.service.DishFlavorService;
 import com.fs.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 菜品管理
@@ -26,6 +32,9 @@ public class DishController {
     @Autowired
     private DishFlavorService dishFlavorService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto){
         log.info("dishDto:{}",dishDto);
@@ -38,6 +47,7 @@ public class DishController {
 
         //构造分页构造器
         Page<Dish> page1=new Page<>(page,pageSize);
+        Page<DishDto> page2=new Page<>();
 
         //构造条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
@@ -50,7 +60,47 @@ public class DishController {
 
         //执行查询
         dishService.page(page1,queryWrapper);
-        return R.success(page1);
+
+        //对象拷贝
+        BeanUtils.copyProperties(page1,page2,"records");
+
+        List<Dish> records=page1.getRecords();
+        List<DishDto> list=records.stream().map((item) ->{
+            DishDto dishDto = new DishDto();
+
+            BeanUtils.copyProperties(item,dishDto);
+            Long categoryId = item.getCategoryId();
+            //根据id查询分类对象
+            Category category = categoryService.getById(categoryId);
+            if(category!=null){
+                String categoryName = category.getName();
+                dishDto.setCategoryName(categoryName);
+            }
+
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        page2.setRecords(list);
+
+        return R.success(page2);
+    }
+
+    /**
+     * 根据id查询菜品信息及对应的口味信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<DishDto> get(@PathVariable Long id){
+        DishDto dishDto = dishService.getByIdWithFlavor(id);
+        return R.success(dishDto);
+    }
+
+    @PutMapping
+    public R<String> update(@RequestBody DishDto dishDto){
+        log.info("dishDto:{}",dishDto);
+        dishService.updateWithFlavor(dishDto);
+        return R.success("修改菜品成功");
     }
 }
 
