@@ -73,6 +73,12 @@
             <version>1.1.23</version>
         </dependency>
 
+        <!--mail短信依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

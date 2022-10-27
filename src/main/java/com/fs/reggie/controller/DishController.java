@@ -8,6 +8,7 @@ import com.fs.reggie.common.R;
 import com.fs.reggie.dto.DishDto;
 import com.fs.reggie.entity.Category;
 import com.fs.reggie.entity.Dish;
+import com.fs.reggie.entity.DishFlavor;
 import com.fs.reggie.service.CategoryService;
 import com.fs.reggie.service.DishFlavorService;
 import com.fs.reggie.service.DishService;
@@ -41,6 +42,28 @@ public class DishController {
         dishService.saveWithFlavor(dishDto);
         return R.success("新增菜品成功");
     }
+
+    @PostMapping("/status/{status}")
+    public R<String> status(@PathVariable Integer status,@RequestParam List<Long> ids){
+        log.info("status:{}",status);
+        log.info("ids:{}",ids);
+
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.in(ids !=null,Dish::getId,ids);
+        //根据数据进行批量查询
+        List<Dish> list = dishService.list(queryWrapper);
+
+        for (Dish dish : list) {
+            if (dish != null){
+                dish.setStatus(status);
+                dishService.updateById(dish);
+            }
+        }
+        return R.success("售卖状态修改成功");
+    }
+
+
+
     @GetMapping("/page")
     public R<Page> page(int page, int pageSize, String name){
         log.info("page={},pageSize={},name={}",page,pageSize,name);
@@ -117,6 +140,16 @@ public class DishController {
         List<Dish> list = dishService.list(queryWrapper);
 
         return R.success(list);
+    }
+    @DeleteMapping
+    public R<String> delete(@RequestParam("ids") List<Long> ids){
+        //删除菜品  这里的删除是逻辑删除
+        dishService.deleteByIds(ids);
+        //删除菜品对应的口味  也是逻辑删除
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DishFlavor::getDishId,ids);
+        dishFlavorService.remove(queryWrapper);
+        return R.success("菜品删除成功");
     }
 }
 

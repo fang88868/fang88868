@@ -117,5 +117,12 @@ public class SetmealController {
         setmealService.removeWithDish(ids);
         return R.success("删除成功");
     }
+
+    @PostMapping("/status/{status}")
+    //这个参数这里一定记得加注解才能获取到参数，否则这里非常容易出问题
+    public R<String> status(@PathVariable("status") Integer status,@RequestParam List<Long> ids){
+        setmealService.updateSetmealStatusById(status,ids);
+        return R.success("售卖状态修改成功");
+    }
 }
 

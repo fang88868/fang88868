@@ -62,4 +62,18 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         lambdaQueryWrapper.in(SetmealDish::getSetmealId,ids);
         setmealDishService.remove(lambdaQueryWrapper);
     }
+
+    @Override
+    public void updateSetmealStatusById(Integer status,  List<Long> ids) {
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper();
+        queryWrapper.in(ids !=null,Setmeal::getId,ids);
+        List<Setmeal> list = this.list(queryWrapper);
+
+        for (Setmeal setmeal : list) {
+            if (setmeal != null){
+                setmeal.setStatus(status);
+                this.updateById(setmeal);
+            }
+        }
+    }
 }
