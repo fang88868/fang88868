@@ -19,8 +19,8 @@ public class User implements Serializable {
     private String name;
 
 
-    //邮箱
-    private String email;
+    //
+    private String phone;
 
 
     //性别 0 女 1 男
