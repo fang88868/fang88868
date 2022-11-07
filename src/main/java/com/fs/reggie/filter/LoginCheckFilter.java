@@ -49,6 +49,17 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
+        if (request.getSession().getAttribute("user")!=null){
+            log.info("移动端用户已登录,id为{}",request.getSession().getAttribute("user"));
+            //设置当前用户id
+            Long userId = (Long)request.getSession().getAttribute("user");
+            BaseContext.setCurrentId(userId);
+            filterChain.doFilter(request,response);
+            return;
+        }else {
+            log.info("移动端用户未登录");
+        }
+
         //4、判断登录状态，如果已登录，则直接放行
         if(request.getSession().getAttribute("employee")!=null){
             log.info("后台用户已登录,id为{}",request.getSession().getAttribute("employee"));
@@ -59,17 +70,36 @@ public class LoginCheckFilter implements Filter {
 
             filterChain.doFilter(request,response);
 
-
             Long id=Thread.currentThread().getId();
             log.info("当前线程id为:{}",id);
             return;
-        }else if (request.getSession().getAttribute("user")!=null){
-            log.info("移动端用户已登录,id为{}",request.getSession().getAttribute("user"));
-            filterChain.doFilter(request,response);
-            return;
         }else {
-            log.info("用户未登录");
+            log.info("后台用户未登录");
         }
+//        if (request.getSession().getAttribute("user")!=null){
+//            log.info("移动端用户已登录,id为{}",request.getSession().getAttribute("user"));
+//            //设置当前用户id
+//            Long userId = (Long)request.getSession().getAttribute("user");
+//            BaseContext.setCurrentId(userId);
+//            filterChain.doFilter(request,response);
+//            return;
+//        }
+//        //4、判断登录状态，如果已登录，则直接放行
+//        if(request.getSession().getAttribute("employee")!=null){
+//            log.info("后台用户已登录,id为{}",request.getSession().getAttribute("employee"));
+//
+//            //设置当前用户id
+//            Long empId = (Long)request.getSession().getAttribute("employee");
+//            BaseContext.setCurrentId(empId);
+//
+//            filterChain.doFilter(request,response);
+//
+//            Long id=Thread.currentThread().getId();
+//            log.info("当前线程id为:{}",id);
+//            return;
+//        }
+//        log.info("后台用户未登录");
+
 
 
 
