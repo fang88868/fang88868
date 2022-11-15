@@ -10,6 +10,7 @@ import com.fs.reggie.mapper.OrdersMapper;
 import com.fs.reggie.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -93,5 +94,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         orderDetailService.saveBatch(orderDetails);
         //清空购物车
         shoppingCartService.remove(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public List<OrderDetail> getOrderDetailListByOrderId(Long orderId) {
+        LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderDetail::getOrderId, orderId);
+        List<OrderDetail> orderDetailList = orderDetailService.list(queryWrapper);
+        return orderDetailList;
     }
 }
