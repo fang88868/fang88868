@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -51,8 +52,6 @@ public class Category implements Serializable {
     //修改人
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
-
-
 
 
 }

@@ -18,9 +18,10 @@ import java.util.List;
 public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
+
     @PostMapping("/add")
-    public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart){
-        log.info("shoppingCart:{}",shoppingCart);
+    public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart) {
+        log.info("shoppingCart:{}", shoppingCart);
         //设置用户id，指定当前是哪个用户
         long currentId = BaseContext.getCurrentId();
         shoppingCart.setUserId(currentId);
@@ -28,28 +29,27 @@ public class ShoppingCartController {
         shoppingCartService.save(shoppingCart);
 
 
-
         Long dishId = shoppingCart.getDishId();
 
-        LambdaQueryWrapper<ShoppingCart> queryWrapper=new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,currentId);
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, currentId);
 
-        if (dishId!=null){
+        if (dishId != null) {
             //添加购物车的是菜品
-            queryWrapper.eq(ShoppingCart::getDishId,dishId);
-        }else {
+            queryWrapper.eq(ShoppingCart::getDishId, dishId);
+        } else {
             //添加购物车的是套餐
-            queryWrapper.eq(ShoppingCart::getSetmealId,shoppingCart.getSetmealId());
+            queryWrapper.eq(ShoppingCart::getSetmealId, shoppingCart.getSetmealId());
         }
         //查询当前菜品或者套餐是否在购物车
         //SQL:select * from shopping_cart where user_id=? and dish_id/setmeal_id=?
         ShoppingCart cartServiceOne = shoppingCartService.getOne(queryWrapper);
-        if(cartServiceOne!=null){
+        if (cartServiceOne != null) {
             //如果已经存在，则数量加一
             Integer number = cartServiceOne.getNumber();
-            cartServiceOne.setNumber(number+1);
+            cartServiceOne.setNumber(number + 1);
             shoppingCartService.updateById(cartServiceOne);
-        }else{
+        } else {
             //如果不不存在，则添加到购物车，数量为1
             cartServiceOne.setNumber(1);
             cartServiceOne.setCreateTime(LocalDateTime.now());
@@ -61,18 +61,19 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/list")
-    public R<List<ShoppingCart>> list(){
-        LambdaQueryWrapper<ShoppingCart> queryWrapper=new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+    public R<List<ShoppingCart>> list() {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
         queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
 
         return R.success(list);
     }
+
     @DeleteMapping("/clean")
-    public R<String> clean(){
-        LambdaQueryWrapper<ShoppingCart> queryWrapper=new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+    public R<String> clean() {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
         shoppingCartService.remove(queryWrapper);
         return R.success("清空购物车成功");
     }

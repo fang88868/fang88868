@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface OrdersService extends IService<Orders> {
     public void submit(Orders orders);
+
     public List<OrderDetail> getOrderDetailListByOrderId(Long orderId);
 }

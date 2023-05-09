@@ -25,32 +25,34 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Autowired
     private SetmealService setmealService;
+
     /**
      * 根据id删除分类，删除之前需要判断
+     *
      * @param id
      */
     @Override
     public void remove(Long id) {
 
-        LambdaQueryWrapper<Dish> dishLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //添加查询条件
-        dishLambdaQueryWrapper.eq(Dish::getCategoryId,id);
-        int count1=dishService.count(dishLambdaQueryWrapper);
+        dishLambdaQueryWrapper.eq(Dish::getCategoryId, id);
+        int count1 = dishService.count(dishLambdaQueryWrapper);
 
-    //查看当前分类是否关联了菜品，如果已经关联，则抛出一个业务异常
-        if(count1 > 0){
+        //查看当前分类是否关联了菜品，如果已经关联，则抛出一个业务异常
+        if (count1 > 0) {
             throw new CustomException("当前分类下关联了菜品，不能删除");
         }
 
-        LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper=new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<Setmeal> setmealLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //添加查询条件
-        setmealLambdaQueryWrapper.eq(Setmeal::getCategoryId,id);
-        int count2=setmealService.count(setmealLambdaQueryWrapper);
-    //查看当前分类是否关联了套餐，如果已经关联，则抛出一个业务异常
-        if(count2 > 0){
+        setmealLambdaQueryWrapper.eq(Setmeal::getCategoryId, id);
+        int count2 = setmealService.count(setmealLambdaQueryWrapper);
+        //查看当前分类是否关联了套餐，如果已经关联，则抛出一个业务异常
+        if (count2 > 0) {
             throw new CustomException("当前分类下关联了套餐，不能删除");
         }
-    //正常删除分类
+        //正常删除分类
         super.removeById(id);
     }
 }
