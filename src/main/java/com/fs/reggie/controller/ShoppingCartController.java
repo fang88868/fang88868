@@ -70,6 +70,44 @@ public class ShoppingCartController {
         return R.success(list);
     }
 
+    @PostMapping("/sub")
+    public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart) {
+        log.info("shoppingCart:{}", shoppingCart);
+        //设置用户id，指定当前是哪个用户
+        long currentId = BaseContext.getCurrentId();
+        shoppingCart.setUserId(currentId);
+
+        shoppingCartService.save(shoppingCart);
+
+
+        Long dishId = shoppingCart.getDishId();
+
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, currentId);
+
+        if (dishId != null) {
+            //添加购物车的是菜品
+            queryWrapper.eq(ShoppingCart::getDishId, dishId);
+        } else {
+            //添加购物车的是套餐
+            queryWrapper.eq(ShoppingCart::getSetmealId, shoppingCart.getSetmealId());
+        }
+
+        ShoppingCart shoppingCart1 = shoppingCartService.getOne(queryWrapper);
+
+        Integer number = shoppingCart1.getNumber();
+        if(number > 0){
+            shoppingCart1.setNumber(number - 1);
+            shoppingCartService.updateById(shoppingCart1);
+        }else{
+
+        }
+
+
+        return R.success(shoppingCart1);
+    }
+
+
     @DeleteMapping("/clean")
     public R<String> clean() {
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
