@@ -92,16 +92,7 @@ public class OrdersController {
         return R.success(pageDto);
     }
 
-    /**
-     * 后台查询订单明细
-     * @param page
-     * @param pageSize
-     * @param number
-     * @param beginTime
-     * @param endTime
-     * @return
-     */
-    @GetMapping("/page")
+@GetMapping("/page")
     public R<Page> page(int page, int pageSize, String number,String beginTime,String endTime){
         //分页构造器对象
         Page<Orders> pageInfo = new Page<>(page,pageSize);

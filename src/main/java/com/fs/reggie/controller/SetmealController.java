@@ -7,6 +7,7 @@ import com.fs.reggie.dto.DishDto;
 import com.fs.reggie.dto.SetmealDto;
 import com.fs.reggie.entity.Category;
 import com.fs.reggie.entity.Setmeal;
+import com.fs.reggie.entity.SetmealDish;
 import com.fs.reggie.service.CategoryService;
 import com.fs.reggie.service.SetmealDishService;
 import com.fs.reggie.service.SetmealService;
@@ -126,6 +127,45 @@ public class SetmealController {
     public R<String> status(@PathVariable("status") Integer status, @RequestParam List<Long> ids) {
         setmealService.updateSetmealStatusById(status, ids);
         return R.success("售卖状态修改成功");
+    }
+    /**
+     * 回显套餐数据：根据套餐id查询套餐
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> getData(@PathVariable Long id){
+        SetmealDto setmealDto = setmealService.getDate(id);
+
+        return R.success(setmealDto);
+    }
+
+
+    @PutMapping
+    public R<String> edit(@RequestBody SetmealDto setmealDto){
+
+        if (setmealDto==null){
+            return R.error("请求异常");
+        }
+
+        if (setmealDto.getSetmealDishes()==null){
+            return R.error("套餐没有菜品,请添加套餐");
+        }
+        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+        Long setmealId = setmealDto.getId();
+
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,setmealId);
+        setmealDishService.remove(queryWrapper);
+
+        //为setmeal_dish表填充相关的属性
+        for (SetmealDish setmealDish : setmealDishes) {
+            setmealDish.setSetmealId(setmealId);
+        }
+        //批量把setmealDish保存到setmeal_dish表
+        setmealDishService.saveBatch(setmealDishes);
+        setmealService.updateById(setmealDto);
+
+        return R.success("套餐修改成功");
     }
 }
 
