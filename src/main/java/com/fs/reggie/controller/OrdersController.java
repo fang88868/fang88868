@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -107,5 +108,23 @@ public class OrdersController {
 
         ordersService.page(pageInfo,queryWrapper);
         return R.success(pageInfo);
+    }
+
+    @PutMapping
+    public R<String> orderStatusChange(@RequestBody Map<String,String> map){
+
+        String id = map.get("id");
+        Long orderId = Long.parseLong(id);
+        Integer status = Integer.parseInt(map.get("status"));
+
+        if(orderId == null || status==null){
+            return R.error("传入信息不合法");
+        }
+        Orders orders = ordersService.getById(orderId);
+        orders.setStatus(status);
+        ordersService.updateById(orders);
+
+        return R.success("订单状态修改成功");
+
     }
 }
